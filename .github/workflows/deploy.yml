@@ -1,0 +1,48 @@
+name: Deploy React Movie App
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: 475190216605.dkr.ecr.ap-south-1.amazonaws.com
+  ECR_REPOSITORY: react-movie
+  CLUSTER_NAME: go-niyo-eks-prod
+  NAMESPACE: react-movie
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        run: docker build -t $ECR_REPOSITORY:latest .
+
+      - name: Tag Docker image
+        run: docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Push Docker image to ECR
+        run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Update Kubeconfig
+        run: aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+
+      - name: Apply Kubernetes manifests
+        run: kubectl apply -f k8s/
+
+      - name: Update deployment image
+        run: kubectl set image deployment/react-movie react-movie=$ECR_REGISTRY/$ECR_REPOSITORY:latest -n $NAMESPACE
