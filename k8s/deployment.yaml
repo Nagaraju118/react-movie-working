@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: react-movie
@@ -18,3 +18,9 @@ spec:
           image: 475190216605.dkr.ecr.ap-south-1.amazonaws.com/react-movie:latest
           ports:
             - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10

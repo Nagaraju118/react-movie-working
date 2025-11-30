@@ -1,12 +1,10 @@
-# Step 1: Build the React app
-FROM node:16-alpine AS build
+﻿FROM node:16-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 COPY . .
 RUN npm run build
 
-# Step 2: Serve using nginx
 FROM nginx:stable-alpine
 COPY --from=build /app/build /usr/share/nginx/html
 EXPOSE 80
