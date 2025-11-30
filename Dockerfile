@@ -1,27 +1,30 @@
-# 1️⃣ Build Stage
+# ---------- 1️⃣ Build Stage ----------
 FROM node:18-alpine AS builder
 
+# Set working directory
 WORKDIR /app
 
-# Copy only package files first
+# Copy package.json and lock file
 COPY package*.json ./
 
 # Install dependencies
 RUN npm install --legacy-peer-deps
 
-# Copy rest of the project
+# Copy everything
 COPY . .
 
-# Build the project
+# Build React app
 RUN npm run build
 
-# 2️⃣ NGINX Stage
+# ---------- 2️⃣ NGINX Stage ----------
 FROM nginx:stable-alpine
 
-# Copy build output to nginx html folder
+# Remove default nginx page
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy build output to nginx
 COPY --from=builder /app/build /usr/share/nginx/html
 
-# Expose port
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
