@@ -1,30 +1,18 @@
-# ---------- BUILD STAGE ----------
-FROM node:18-alpine AS build
-
+﻿# build stage
+FROM node:16-alpine AS build
 WORKDIR /app
-
-# Copy package files first for caching
+# copy package files first (cache)
 COPY package.json package-lock.json* ./
-
-# Install dependencies
 RUN npm install --legacy-peer-deps
-
-# Copy all code
+# copy rest
 COPY . .
-
-# Build react app
+# ensure .env is included (workflow creates it before docker build)
+COPY .env .env
 RUN npm run build
 
-# ---------- PRODUCTION STAGE ----------
+# production stage
 FROM nginx:stable-alpine
-
-# Clear default nginx files
 RUN rm -rf /usr/share/nginx/html/*
-
-# Copy built react app
 COPY --from=build /app/build /usr/share/nginx/html
-
-# Expose port
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]

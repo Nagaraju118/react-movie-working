@@ -1,5 +1,5 @@
 ﻿{
-  "name": "movie-db-real",
+  "name": "movie-db-simple",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
@@ -10,7 +10,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "serve": "serve -s build",
-    "test": "react-scripts test --env=jsdom"
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   }
 }
