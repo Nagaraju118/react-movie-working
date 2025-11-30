@@ -41,8 +41,21 @@ jobs:
       - name: Update Kubeconfig
         run: aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
 
-      - name: Apply Kubernetes manifests
-        run: kubectl apply -f k8s/
+      # ------------- FIXED SECTION -------------
+      - name: Apply Namespace
+        run: kubectl apply -f k8s/namespace.yaml || echo "Namespace already exists"
+
+      - name: Wait for Namespace to be ready
+        run: sleep 5
+
+      - name: Apply Deployment and Service
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+
+      - name: Apply Ingress
+        run: kubectl apply -f k8s/ingress.yaml
+      # -----------------------------------------
 
       - name: Update deployment image
         run: kubectl set image deployment/react-movie react-movie=$ECR_REGISTRY/$ECR_REPOSITORY:latest -n $NAMESPACE
