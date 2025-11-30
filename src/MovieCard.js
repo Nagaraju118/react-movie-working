@@ -1,14 +1,12 @@
-﻿import React from "react";
-
-export default function MovieCard({ movie, imageBase }){
+export default function MovieCard({ movie }) {
   return (
-    <div className="card">
-      <img className="poster" src={ movie.poster_path ? (imageBase + movie.poster_path) : "https://via.placeholder.com/500x750?text=No+Image" } alt={movie.title} />
-      <div className="card-body">
-        <div style={{fontWeight:700}}>{movie.title}</div>
-        <div style={{fontSize:12, color:"#666"}}>{movie.release_date}</div>
-        <div className="vote">{movie.vote_average}</div>
-      </div>
+    <div className="movie-card">
+      <img
+        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+        alt={movie.title}
+      />
+      <h3>{movie.title}</h3>
+      <p>⭐ Rating: {movie.vote_average}</p>
     </div>
   );
 }
